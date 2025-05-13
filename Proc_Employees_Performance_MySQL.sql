@@ -241,6 +241,34 @@ delimiter ;
 
 
 
+drop procedure if exists get_all_employees_admin;
+delimiter $$
+create procedure get_all_employees_admin(in pages int, in size int)
+begin
+	declare skips int;
+	set skips := pages * size;
+	select 
+    e.employee_id,
+    e.name,
+    e.email,
+    e.phone,
+    e.job_title,
+    e.birth_date,
+    e.avatar,
+    COUNT(CASE WHEN r.status = 'reviewed' THEN 1 END) AS reviewed,
+    COUNT(CASE WHEN r.status = 'pending' THEN 1 END) AS pending
+    from 
+    (select employee_id, name, email, phone, job_title, birth_date, avatar from employees) e
+	LEFT JOIN review r ON r.employee_id = e.employee_id
+	GROUP BY e.employee_id
+    limit size offset skips;
+end $$
+delimiter ;
+
+
+
+
+
 
 drop procedure if exists get_all_employee_sidebar;
 delimiter $$
@@ -786,3 +814,39 @@ begin
 end $$
 delimiter ;
 	
+    
+
+
+
+
+drop procedure if exists delete_kpa;
+delimiter $$
+create procedure delete_kpa(in kpaId int, in accountId int)
+begin
+	if accountId =1 then
+	begin
+		delete from kpa where kpa_id = kpaId;
+		select 1;
+	end;
+	else select 0;
+    end if;
+end $$
+delimiter ;
+
+
+
+
+
+drop procedure if exists delete_kpi;
+delimiter $$
+create procedure delete_kpi(in kpiId int, in accountId int)
+begin
+	if accountId =1 then
+	begin
+		delete from kpi where kpi_id = kpiId;
+		select 1;
+	end;
+	else select 0;
+    end if;
+end $$
+delimiter ;
